@@ -9,24 +9,24 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg: #0f172a;
-            --card: #0b1324;
-            --accent: #3b82f6;
+            --bg: radial-gradient(circle at 20% 20%, rgba(59,130,246,.18), transparent 25%),
+                  radial-gradient(circle at 80% 0%, rgba(34,197,94,.12), transparent 24%),
+                  #eef2ff;
+            --card: rgba(255, 255, 255, 0.9);
+            --accent: #2563eb;
             --accent-2: #22c55e;
-            --text: #e2e8f0;
-            --muted: #94a3b8;
-            --border: #1f2937;
-            --shadow: 0 15px 50px rgba(0,0,0,0.35);
-            --radius: 20px;
+            --text: #0f172a;
+            --muted: #475569;
+            --border: #d8e0ff;
+            --shadow: 0 20px 60px rgba(15,23,42,0.12);
+            --radius: 18px;
         }
 
         * { box-sizing: border-box; }
 
         body {
             margin: 0;
-            background: radial-gradient(circle at 20% 20%, rgba(59,130,246,.15), transparent 30%),
-                        radial-gradient(circle at 80% 0%, rgba(34,197,94,.18), transparent 25%),
-                        var(--bg);
+            background: var(--bg);
             color: var(--text);
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
             min-height: 100vh;
@@ -40,6 +40,22 @@
             align-items: center;
             justify-content: space-between;
             gap: 18px;
+        }
+
+        .title-wrap {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .badge {
+            background: linear-gradient(120deg, #6366f1, #22c55e);
+            color: #fff;
+            padding: 10px 12px;
+            border-radius: 14px;
+            font-weight: 700;
+            box-shadow: var(--shadow);
+            letter-spacing: 0.2px;
         }
 
         .title {
@@ -56,17 +72,36 @@
         .github-link {
             color: var(--accent);
             text-decoration: none;
-            font-weight: 600;
-            border: 1px solid var(--border);
-            padding: 10px 14px;
+            font-weight: 700;
+            border: 1px solid rgba(99,102,241,0.2);
+            padding: 11px 15px;
             border-radius: 12px;
-            background: rgba(255,255,255,0.02);
+            background: #fff;
             transition: all .2s ease;
+            box-shadow: var(--shadow);
         }
 
         .github-link:hover {
-            border-color: rgba(59,130,246,.35);
-            background: rgba(59,130,246,.08);
+            border-color: rgba(37,99,235,.45);
+            box-shadow: 0 16px 40px rgba(37,99,235,.18);
+        }
+
+        .info-line {
+            max-width: 1100px;
+            margin: 0 auto 12px;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            color: var(--muted);
+            font-size: 14px;
+        }
+
+        .info-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: linear-gradient(120deg, #22c55e, #a3e635);
+            box-shadow: 0 0 0 6px rgba(34,197,94,.12);
         }
 
         main {
@@ -76,8 +111,8 @@
 
         .layout {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-            gap: 18px;
+            grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+            gap: 20px;
         }
 
         .card {
@@ -86,12 +121,25 @@
             border-radius: var(--radius);
             padding: 20px 22px 22px;
             box-shadow: var(--shadow);
+            backdrop-filter: blur(8px);
         }
 
         .card h2 {
             margin: 0 0 12px;
             font-size: 18px;
             letter-spacing: 0.2px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .step-tag {
+            padding: 4px 8px;
+            border-radius: 10px;
+            background: rgba(37,99,235,.1);
+            color: #1d4ed8;
+            font-weight: 700;
+            font-size: 12px;
         }
 
         .helper {
@@ -106,14 +154,12 @@
             align-items: center;
             gap: 12px;
             padding: 14px;
-            border: 1px dashed rgba(148,163,184,.5);
+            border: 1px dashed rgba(148,163,184,.7);
             border-radius: 14px;
-            background: rgba(255,255,255,0.02);
+            background: rgba(255,255,255,0.7);
         }
 
-        .file-drop input[type=file] {
-            display: none;
-        }
+        .file-drop input[type=file] { display: none; }
 
         .file-drop label {
             background: linear-gradient(120deg, var(--accent), var(--accent-2));
@@ -123,13 +169,13 @@
             font-weight: 700;
             color: white;
             border: none;
-            box-shadow: 0 10px 30px rgba(59,130,246,0.35);
+            box-shadow: 0 10px 30px rgba(37,99,235,0.25);
             transition: transform .2s ease, box-shadow .2s ease;
         }
 
         .file-drop label:hover {
             transform: translateY(-1px);
-            box-shadow: 0 12px 35px rgba(59,130,246,0.45);
+            box-shadow: 0 12px 35px rgba(37,99,235,0.35);
         }
 
         .file-text {
@@ -139,7 +185,7 @@
 
         .controls {
             display: grid;
-            grid-template-columns: 1fr;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
             gap: 12px;
         }
 
@@ -149,13 +195,14 @@
             gap: 6px;
             padding: 12px;
             border-radius: 12px;
-            background: rgba(255,255,255,0.02);
+            background: rgba(246, 248, 255, 0.8);
             border: 1px solid var(--border);
         }
 
         .control label {
             font-size: 14px;
             color: var(--muted);
+            font-weight: 600;
         }
 
         .control input[type=text] {
@@ -163,35 +210,33 @@
             padding: 12px 14px;
             border-radius: 10px;
             border: 1px solid var(--border);
-            background: #0f1a33;
+            background: #fff;
             color: var(--text);
             font-size: 15px;
             transition: border-color .2s ease, box-shadow .2s ease;
         }
 
         .control input[type=text]:focus {
-            border-color: rgba(59,130,246,.65);
+            border-color: rgba(37,99,235,.65);
             outline: none;
-            box-shadow: 0 0 0 3px rgba(59,130,246,.2);
+            box-shadow: 0 0 0 3px rgba(37,99,235,.16);
         }
 
         .slider-row {
             display: grid;
-            grid-template-columns: 120px 1fr;
+            grid-template-columns: 140px 1fr;
             align-items: center;
             gap: 10px;
         }
 
-        input[type=range] {
-            accent-color: var(--accent);
-        }
+        input[type=range] { accent-color: var(--accent); }
 
         input[type=color] {
             width: 100%;
-            height: 40px;
+            height: 44px;
             border: 1px solid var(--border);
             border-radius: 10px;
-            background: #0f1a33;
+            background: #fff;
             padding: 6px;
         }
 
@@ -203,14 +248,14 @@
         }
 
         .btn {
-            background: linear-gradient(120deg, #475569, #0ea5e9);
+            background: linear-gradient(120deg, #3b82f6, #2563eb);
             color: white;
             border: none;
             padding: 10px 16px;
             border-radius: 12px;
             font-weight: 700;
             cursor: pointer;
-            box-shadow: 0 10px 25px rgba(14,165,233,.35);
+            box-shadow: 0 10px 25px rgba(37,99,235,.28);
             transition: transform .2s ease, box-shadow .2s ease;
         }
 
@@ -222,20 +267,18 @@
 
         .btn:not(:disabled):hover {
             transform: translateY(-1px);
-            box-shadow: 0 12px 28px rgba(14,165,233,.45);
+            box-shadow: 0 12px 28px rgba(37,99,235,.35);
         }
 
-        #graph {
-            margin: 14px 0 4px;
-        }
+        #graph { margin: 14px 0 4px; }
 
         canvas {
             box-sizing: border-box;
             width: 100%;
-            border: 1px dashed rgba(148,163,184,.7);
+            border: 1px dashed rgba(148,163,184,.9);
             border-radius: 14px;
             cursor: pointer;
-            background: rgba(255,255,255,0.015);
+            background: rgba(255,255,255,0.85);
         }
 
         .hint {
@@ -253,15 +296,25 @@
 <body>
     <header>
         <div>
-            <h1 class="title">图片水印打码工具</h1>
-            <p class="subtitle">本地完成渲染，安全为证件照片等敏感图片添加防泄漏水印。点击图片即可下载。</p>
+            <div class="title-wrap">
+                <div class="badge">Watermark v2</div>
+                <div>
+                    <h1 class="title">图片水印打码工具</h1>
+                    <p class="subtitle">本地完成渲染，安全为证件照片等敏感图片添加防泄漏水印。点击图片即可下载。</p>
+                </div>
+            </div>
         </div>
         <a class="github-link" href="https://github.com/joyqi/sfz" target="_blank" rel="noreferrer">Github 地址</a>
     </header>
 
+    <div class="info-line">
+        <span class="info-dot"></span>
+        <span>所有处理均在浏览器内完成，无需上传；点击预览即可导出带水印的 PNG 图片。</span>
+    </div>
+
     <main class="layout">
         <section class="card">
-            <h2>步骤 1：选择一张本地图片</h2>
+            <h2><span class="step-tag">STEP 1</span>选择一张本地图片</h2>
             <p class="helper">选择后立即在右侧预览，无需上传到服务器。支持 PNG / JPG / GIF。</p>
             <div class="file-drop">
                 <label for="image">选择图片</label>
@@ -269,7 +322,7 @@
                 <input type="file" id="image" autocomplete="off" accept="image/png,image/jpeg,image/gif">
             </div>
 
-            <h2 style="margin-top:18px;">步骤 2：设置水印样式</h2>
+            <h2 style="margin-top:18px;"><span class="step-tag">STEP 2</span>设置水印样式</h2>
             <div class="controls">
                 <div class="control">
                     <label for="text">水印内容</label>
@@ -316,7 +369,7 @@
         </section>
 
         <section class="card">
-            <h2>步骤 3：点击预览图下载</h2>
+            <h2><span class="step-tag">STEP 3</span>点击预览图下载</h2>
             <p class="helper">调整好样式后，点击下方生成的预览图即可下载带水印的图片。</p>
             <p id="graph"></p>
         </section>
