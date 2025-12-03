@@ -8,14 +8,12 @@ valueDisplays =
     space: document.querySelector '#space-value'
     size: document.querySelector '#size-value'
 
-image = $ '#image'
+imageInput = $ '#image'
 graph = $ '#graph'
 refresh = $ '#refresh'
 autoRefresh = $ '#auto-refresh'
-file = null
-canvas = null
-textCtx = null
-redraw = null
+files = []
+canvases = []
 
 dataURItoBlob = (dataURI) ->
     binStr = atob (dataURI.split ',')[1]
@@ -27,57 +25,46 @@ dataURItoBlob = (dataURI) ->
     new Blob [arr], type: 'image/png'
 
 
-generateFileName = ->
-    pad = (n) -> if n < 10 then '0' + n else n
+readFiles = ->
+    return if not files?.length
 
-    d = new Date
-    '' + d.getFullYear() + '-' + (pad d.getMonth() + 1) + '-' + (pad d.getDate()) + ' ' + \
-        (pad d.getHours()) + (pad d.getMinutes()) + (pad d.getSeconds()) + '.png'
+    graph.innerHTML = ''
+    canvases = []
 
+    Array.from(files).forEach (file) ->
+        fileReader = new FileReader
 
-readFile = ->
-    return if not file?
+        fileReader.onload = ->
+            img = new Image
+            img.onload = ->
+                canvas = document.createElement 'canvas'
+                canvas.width = img.width
+                canvas.height = img.height
 
-    fileReader = new FileReader
-
-    fileReader.onload = ->
-        img = new Image
-        img.onload = ->
-            canvas = document.createElement 'canvas'
-            canvas.width = img.width
-            canvas.height = img.height
-            textCtx = null
-            
-            ctx = canvas.getContext '2d'
-            ctx.drawImage img, 0, 0
-
-            redraw = ->
-                ctx.clearRect 0, 0, canvas.width, canvas.height
+                ctx = canvas.getContext '2d'
                 ctx.drawImage img, 0, 0
-            
-            drawText()
 
-            graph.innerHTML = ''
-            graph.appendChild canvas
+                canvases.push { canvas, ctx, img, name: file.name }
 
-            canvas.addEventListener 'click', ->
-                link = document.createElement 'a'
-                link.download = generateFileName()
-                imageData = canvas.toDataURL 'image/png'
-                blob = dataURItoBlob imageData
-                link.href = URL.createObjectURL blob
-                graph.appendChild link
+                canvas.addEventListener 'click', ->
+                    link = document.createElement 'a'
+                    link.download = (file.name?.replace(/(\.[^.]+)?$/, '') or 'watermark') + '-marked.png'
+                    imageData = canvas.toDataURL 'image/png'
+                    blob = dataURItoBlob imageData
+                    link.href = URL.createObjectURL blob
+                    graph.appendChild link
 
-                setTimeout ->
-                    link.click()
-                    graph.removeChild link
-                , 100
-                
+                    setTimeout ->
+                        link.click()
+                        graph.removeChild link
+                    , 100
 
+                graph.appendChild canvas
+                drawText()
 
-        img.src = fileReader.result
+            img.src = fileReader.result
 
-    fileReader.readAsDataURL file
+        fileReader.readAsDataURL file
     
 
 makeStyle = ->
@@ -114,44 +101,54 @@ updateValue = (key) ->
 
 
 drawText = ->
-    return if not canvas?
-    textSize = input.size.value * Math.max 15, (Math.min canvas.width, canvas.height) / 25
-    
-    if textCtx?
-        redraw()
-    else
-        textCtx = canvas.getContext '2d'
+    return unless canvases.length
 
-    textCtx.save()
-    textCtx.translate(canvas.width / 2, canvas.height / 2)
-    textCtx.rotate (input.angle.value) * Math.PI / 180
+    canvases.forEach ({ canvas, ctx, img }) ->
+        textSize = input.size.value * Math.max 15, (Math.min canvas.width, canvas.height) / 25
 
-    textCtx.fillStyle = makeStyle()
-    fontName = fontStacks[input.font.value] or fontStacks.system
-    textCtx.font = 'bold ' + textSize + 'px ' + fontName
-    
-    text = input.text.value or '内部水印'
-    width = (textCtx.measureText text).width
-    step = Math.sqrt (Math.pow canvas.width, 2) + (Math.pow canvas.height, 2)
-    margin = (textCtx.measureText '啊').width
+        ctx.clearRect 0, 0, canvas.width, canvas.height
+        ctx.drawImage img, 0, 0
 
-    x = Math.ceil step / (width + margin)
-    y = Math.ceil (step / (input.space.value * textSize)) / 2
+        ctx.save()
+        ctx.translate(canvas.width / 2, canvas.height / 2)
+        ctx.rotate (input.angle.value) * Math.PI / 180
 
-    for i in [-x..x]
-        for j in [-y..y]
-            textCtx.fillText text, (width + margin) * i, input.space.value * textSize * j
-    
-    textCtx.restore()
+        ctx.fillStyle = makeStyle()
+        fontName = fontStacks[input.font.value] or fontStacks.system
+        ctx.font = 'bold ' + textSize + 'px ' + fontName
+
+        text = input.text.value or '内部水印'
+        width = (ctx.measureText text).width
+        step = Math.sqrt (Math.pow canvas.width, 2) + (Math.pow canvas.height, 2)
+        margin = (ctx.measureText '啊').width
+
+        x = Math.ceil step / (width + margin)
+        y = Math.ceil (step / (input.space.value * textSize)) / 2
+
+        for i in [-x..x]
+            for j in [-y..y]
+                ctx.fillText text, (width + margin) * i, input.space.value * textSize * j
+
+        ctx.restore()
     return
 
 
-image.addEventListener 'change', ->
-    file = @files[0]
+imageInput.addEventListener 'change', ->
+    selected = Array.from @files or []
+    validTypes = ['image/png', 'image/jpeg', 'image/gif']
+    invalid = selected.filter (item) -> item.type not in validTypes
+    files = selected.filter (item) -> item.type in validTypes
 
-    return alert '仅支持 png, jpg, gif 图片格式' if file.type not in ['image/png', 'image/jpeg', 'image/gif']
-    readFile()
+    alert '已忽略非 png/jpg/gif 的文件' if invalid.length
+    return alert '请选择 png / jpg / gif 图片' unless files.length
+    readFiles()
 
+
+autoRefresh.addEventListener 'change', ->
+    if @checked
+        refresh.setAttribute 'disabled', 'disabled'
+    else
+        refresh.removeAttribute 'disabled'
 
 autoRefresh.addEventListener 'change', ->
     if @checked
