@@ -1,65 +1,472 @@
 <!DOCTYPE html>
-<html>
+<html lang="zh-CN">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"/>
     <title>图片水印打码工具</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Noto+Sans+SC:wght@400;600&display=swap" rel="stylesheet">
     <style>
-        #container {
-            max-width: 500px;
-            margin: 30px auto;
+        :root {
+            --bg: radial-gradient(circle at 20% 20%, rgba(59,130,246,.18), transparent 25%),
+                  radial-gradient(circle at 80% 0%, rgba(34,197,94,.12), transparent 24%),
+                  #eef2ff;
+            --card: rgba(255, 255, 255, 0.9);
+            --accent: #2563eb;
+            --accent-2: #22c55e;
+            --text: #0f172a;
+            --muted: #475569;
+            --border: #d8e0ff;
+            --shadow: 0 20px 60px rgba(15,23,42,0.12);
+            --radius: 18px;
         }
 
-        h1 { margin: 0 }
-        p, article { margin: 0 0 20px 0 }
-        article { font-size: 14px; color: #777 }
+        * { box-sizing: border-box; }
 
-        label { color: blue; font-size: 17px }
-        p label { color: black; display: inline-block; margin-right: 5px; font-size: 15px }
-        p { font-size: 15px; line-height: 30px }
-        p > * { vertical-align: middle }
+        body {
+            margin: 0;
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            min-height: 100vh;
+            padding: 32px 16px 48px;
+        }
 
-        input#text { width: 100%; box-sizing: border-box; font-size: 16px; margin-bottom: 10px }
-        input[type=range] { width: 200px; height: 18px; }
+        header {
+            max-width: 1100px;
+            margin: 0 auto 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 18px;
+        }
 
-        canvas { box-sizing: border-box; width: 100%; border: 1px dashed #AAA; cursor: pointer }
+        .title-wrap {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .badge {
+            background: linear-gradient(120deg, #6366f1, #22c55e);
+            color: #fff;
+            padding: 10px 12px;
+            border-radius: 14px;
+            font-weight: 700;
+            box-shadow: var(--shadow);
+            letter-spacing: 0.2px;
+        }
+
+        .title {
+            font-size: clamp(26px, 4vw, 34px);
+            margin: 0 0 6px;
+        }
+
+        .subtitle {
+            margin: 0;
+            color: var(--muted);
+            line-height: 1.5;
+        }
+
+        .github-link {
+            color: var(--accent);
+            text-decoration: none;
+            font-weight: 700;
+            border: 1px solid rgba(99,102,241,0.2);
+            padding: 11px 15px;
+            border-radius: 12px;
+            background: #fff;
+            transition: all .2s ease;
+            box-shadow: var(--shadow);
+        }
+
+        .github-link:hover {
+            border-color: rgba(37,99,235,.45);
+            box-shadow: 0 16px 40px rgba(37,99,235,.18);
+        }
+
+        .info-line {
+            max-width: 1100px;
+            margin: 0 auto 12px;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            color: var(--muted);
+            font-size: 14px;
+        }
+
+        .info-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: linear-gradient(120deg, #22c55e, #a3e635);
+            box-shadow: 0 0 0 6px rgba(34,197,94,.12);
+        }
+
+        main {
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+
+        .layout {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+            gap: 22px;
+        }
+
+        .card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 22px 24px 24px;
+            box-shadow: var(--shadow);
+            backdrop-filter: blur(8px);
+        }
+
+        .card h2 {
+            margin: 0 0 12px;
+            font-size: 18px;
+            letter-spacing: 0.2px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .step-tag {
+            padding: 4px 8px;
+            border-radius: 10px;
+            background: rgba(37,99,235,.1);
+            color: #1d4ed8;
+            font-weight: 700;
+            font-size: 12px;
+        }
+
+        .helper {
+            margin: 0 0 14px;
+            color: var(--muted);
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .file-drop {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px;
+            border: 1px dashed rgba(148,163,184,.7);
+            border-radius: 14px;
+            background: rgba(255,255,255,0.7);
+        }
+
+        .file-drop input[type=file] { display: none; }
+
+        .file-drop label {
+            background: linear-gradient(120deg, var(--accent), var(--accent-2));
+            padding: 12px 18px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: 700;
+            color: white;
+            border: none;
+            box-shadow: 0 10px 30px rgba(37,99,235,0.25);
+            transition: transform .2s ease, box-shadow .2s ease;
+            white-space: nowrap;
+        }
+
+        .file-drop label:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 12px 35px rgba(37,99,235,0.35);
+        }
+
+        .file-text {
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .controls {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 14px;
+        }
+
+        .control {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            padding: 12px;
+            border-radius: 12px;
+            background: rgba(246, 248, 255, 0.8);
+            border: 1px solid var(--border);
+        }
+
+        .control label {
+            font-size: 14px;
+            color: var(--muted);
+            font-weight: 600;
+        }
+
+        .control input[type=text] {
+            width: 100%;
+            padding: 12px 14px;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            background: #fff;
+            color: var(--text);
+            font-size: 15px;
+            transition: border-color .2s ease, box-shadow .2s ease;
+        }
+
+        .control input[type=text]:focus {
+            border-color: rgba(37,99,235,.65);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(37,99,235,.16);
+        }
+
+        .control select {
+            width: 100%;
+            padding: 12px 14px;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            background: #fff;
+            color: var(--text);
+            font-size: 15px;
+            font-weight: 600;
+            transition: border-color .2s ease, box-shadow .2s ease;
+        }
+
+        .control select:focus {
+            border-color: rgba(37,99,235,.65);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(37,99,235,.16);
+        }
+
+        .slider-row {
+            display: grid;
+            grid-template-columns: 120px 1fr 60px;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .value {
+            font-weight: 700;
+            color: var(--text);
+            text-align: right;
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 8px 10px;
+            min-width: 56px;
+        }
+
+        input[type=range] {
+            accent-color: var(--accent);
+            width: 100%;
+            margin: 0;
+            background: transparent;
+            height: 34px;
+        }
+
+        input[type=range]::-webkit-slider-runnable-track {
+            height: 10px;
+            border-radius: 999px;
+            background: linear-gradient(90deg, rgba(37,99,235,.32), rgba(37,99,235,.12));
+            border: 1px solid rgba(148,163,184,.45);
+        }
+
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            margin-top: -7px;
+            height: 22px;
+            width: 22px;
+            border-radius: 50%;
+            background: #2563eb;
+            box-shadow: 0 10px 18px rgba(37,99,235,.35);
+            border: 3px solid #fff;
+        }
+
+        input[type=range]:focus::-webkit-slider-thumb { outline: none; }
+
+        input[type=range]::-moz-range-track {
+            height: 10px;
+            border-radius: 999px;
+            background: linear-gradient(90deg, rgba(37,99,235,.32), rgba(37,99,235,.12));
+            border: 1px solid rgba(148,163,184,.45);
+        }
+
+        input[type=range]::-moz-range-thumb {
+            height: 22px;
+            width: 22px;
+            border-radius: 50%;
+            background: #2563eb;
+            box-shadow: 0 10px 18px rgba(37,99,235,.35);
+            border: 3px solid #fff;
+        }
+
+        input[type=color] {
+            width: 100%;
+            height: 44px;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            background: #fff;
+            padding: 6px;
+        }
+
+        .toggles {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: linear-gradient(120deg, #3b82f6, #2563eb);
+            color: white;
+            border: none;
+            padding: 12px 18px;
+            border-radius: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 10px 25px rgba(37,99,235,.28);
+            transition: transform .2s ease, box-shadow .2s ease;
+            white-space: nowrap;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .btn:disabled {
+            cursor: not-allowed;
+            opacity: 0.65;
+            box-shadow: none;
+        }
+
+        .btn:not(:disabled):hover {
+            transform: translateY(-1px);
+            box-shadow: 0 12px 28px rgba(37,99,235,.35);
+        }
+
+        #graph { margin: 14px 0 4px; }
+
+        canvas {
+            box-sizing: border-box;
+            width: 100%;
+            border: 1px dashed rgba(148,163,184,.9);
+            border-radius: 14px;
+            cursor: pointer;
+            background: rgba(255,255,255,0.85);
+        }
+
+        .hint {
+            margin: 6px 0 0;
+            color: var(--muted);
+            font-size: 13px;
+        }
+
+        @media (max-width: 640px) {
+            body { padding-top: 24px; }
+            .slider-row { grid-template-columns: 1fr; }
+        }
     </style>
 </head>
-    <div id="container">
-        <h1>图片水印打码工具</h1>
-        <article>安全地为你的图片加水印，无任何网络请求，特别适合各种敏感证件（身份证，驾照，护照等）。<a href="https://github.com/joyqi/sfz">Github地址</a></article>
+<body>
+    <header>
+        <div>
+            <div class="title-wrap">
+                <div class="badge">Watermark v2</div>
+                <div>
+                    <h1 class="title">图片水印打码工具</h1>
+                    <p class="subtitle">本地完成渲染，安全为证件照片等敏感图片添加防泄漏水印。点击图片即可下载。</p>
+                </div>
+            </div>
+        </div>
+        <a class="github-link" href="https://github.com/joyqi/sfz" target="_blank" rel="noreferrer">Github 地址</a>
+    </header>
 
-        <label for="image">第一步：先选择一张本地图片</label>
-        <p><input type="file" id="image" autocomplete="off"></p>
-
-        
-        <label for="text">第二步：输入需要打水印的文字</label>
-        <p><input type="text" id="text" placeholder="请输入文字" autocomplete="off" maxlength="30">
-        
-        <label for="color">颜色</label>
-        <input type="color" id="color" pattern="#[0-9A-Fa-f]{6}" autocomplete="off" value="#0000FF"><br>
-        
-        <label for="alpha">透明度</label>
-        <input type="range" id="alpha" min="0" max="1" step="0.05" autocomplete="off" value="0.15"><br>
-        
-        <label for="angle">角度</label>
-        <input type="range" id="angle" min="-90" max="90" step="3" autocomplete="off" value="45"><br>
-
-        <label for="space">间隔</label>
-        <input type="range" id="space" min="1" max="8" step="0.2" autocomplete="off" value="4"><br>
-        
-        <label for="size">字号</label>
-        <input type="range" id="size" min="0.5" max="3" step="0.05" autocomplete="off" value="1">
-        </p>
-        
-        <label for="text">第三步：点击图片下载</label>
-        <p>
-            <label for="auto-refresh">实时刷新</label>
-            <input type="checkbox" id="auto-refresh" autocomplete="off" checked>
-            <button id="refresh" disabled>刷新</button>
-        </p>
-        <p id="graph"></p>
+    <div class="info-line">
+        <span class="info-dot"></span>
+        <span>所有处理均在浏览器内完成，无需上传；点击预览即可导出带水印的 PNG 图片。</span>
     </div>
+
+    <main class="layout">
+        <section class="card">
+            <h2><span class="step-tag">STEP 1</span>选择一张本地图片</h2>
+            <p class="helper">选择后立即在右侧预览，无需上传到服务器。支持 PNG / JPG / GIF。</p>
+            <div class="file-drop">
+                <label for="image">选择图片</label>
+                <span class="file-text">点击按钮从本地选择，或直接在预览区下载已生成的图片。</span>
+                <input type="file" id="image" autocomplete="off" accept="image/png,image/jpeg,image/gif">
+            </div>
+
+            <h2 style="margin-top:18px;"><span class="step-tag">STEP 2</span>设置水印样式</h2>
+            <div class="controls">
+                <div class="control">
+                    <label for="text">水印内容</label>
+                    <input type="text" id="text" placeholder="例如：仅供内部使用" autocomplete="off" maxlength="30">
+                </div>
+                <div class="control">
+                    <label for="font">字体</label>
+                    <select id="font" autocomplete="off">
+                        <option value="system">系统默认（更兼容）</option>
+                        <option value="inter" selected>Inter（现代风格）</option>
+                        <option value="noto">思源黑体 Noto Sans SC</option>
+                        <option value="mono">等宽字体（编码感）</option>
+                    </select>
+                </div>
+                <div class="control">
+                    <label for="color">颜色</label>
+                    <input type="color" id="color" pattern="#[0-9A-Fa-f]{6}" autocomplete="off" value="#1d9bf0">
+                </div>
+                <div class="control">
+                    <div class="slider-row">
+                        <label for="alpha">透明度</label>
+                        <input type="range" id="alpha" min="0" max="1" step="0.05" autocomplete="off" value="0.15">
+                        <span class="value" id="alpha-value">15%</span>
+                    </div>
+                </div>
+                <div class="control">
+                    <div class="slider-row">
+                        <label for="angle">角度</label>
+                        <input type="range" id="angle" min="-90" max="90" step="3" autocomplete="off" value="45">
+                        <span class="value" id="angle-value">45°</span>
+                    </div>
+                </div>
+                <div class="control">
+                    <div class="slider-row">
+                        <label for="space">行间距</label>
+                        <input type="range" id="space" min="1" max="8" step="0.2" autocomplete="off" value="4">
+                        <span class="value" id="space-value">4.0x</span>
+                    </div>
+                </div>
+                <div class="control">
+                    <div class="slider-row">
+                        <label for="size">字号比例</label>
+                        <input type="range" id="size" min="0.5" max="3" step="0.05" autocomplete="off" value="1">
+                        <span class="value" id="size-value">1.00x</span>
+                    </div>
+                </div>
+            </div>
+
+            <div style="margin-top: 14px;" class="toggles">
+                <label for="auto-refresh" style="display:flex; align-items:center; gap:8px;">
+                    <input type="checkbox" id="auto-refresh" autocomplete="off" checked>
+                    实时刷新
+                </label>
+                <button id="refresh" class="btn" disabled>手动刷新</button>
+            </div>
+            <p class="hint">关闭实时刷新后可在调整参数后点击手动刷新进行重新绘制。</p>
+        </section>
+
+        <section class="card">
+            <h2><span class="step-tag">STEP 3</span>点击预览图下载</h2>
+            <p class="helper">调整好样式后，点击下方生成的预览图即可下载带水印的图片。</p>
+            <p id="graph"></p>
+        </section>
+    </main>
+
     <script src="./script.js"></script>
     <!-- placeholder -->
+</body>
 </html>
