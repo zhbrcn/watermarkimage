@@ -1,6 +1,6 @@
 $ = (sel) -> document.querySelector sel
 
-inputItems = ['text', 'color', 'alpha', 'angle', 'space', 'size']
+inputItems = ['text', 'font', 'color', 'alpha', 'angle', 'space', 'size']
 input = {}
 
 image = $ '#image'
@@ -82,6 +82,13 @@ makeStyle = ->
          + (parseInt match[3], 16) + ',' + input.alpha.value + ')'
 
 
+fontStacks =
+    system: '-apple-system,"Helvetica Neue",Helvetica,Arial,"PingFang SC","Hiragino Sans GB","WenQuanYi Micro Hei",sans-serif'
+    inter: '"Inter",-apple-system,"Helvetica Neue",Helvetica,Arial,"PingFang SC","Hiragino Sans GB","WenQuanYi Micro Hei",sans-serif'
+    noto: '"Noto Sans SC","PingFang SC","Hiragino Sans GB","WenQuanYi Micro Hei",sans-serif'
+    mono: '"SFMono-Regular",Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace'
+
+
 drawText = ->
     return if not canvas?
     textSize = input.size.value * Math.max 15, (Math.min canvas.width, canvas.height) / 25
@@ -90,13 +97,14 @@ drawText = ->
         redraw()
     else
         textCtx = canvas.getContext '2d'
-    
+
     textCtx.save()
     textCtx.translate(canvas.width / 2, canvas.height / 2)
     textCtx.rotate (input.angle.value) * Math.PI / 180
 
     textCtx.fillStyle = makeStyle()
-    textCtx.font = 'bold ' + textSize + 'px -apple-system,"Helvetica Neue",Helvetica,Arial,"PingFang SC","Hiragino Sans GB","WenQuanYi Micro Hei",sans-serif'
+    fontName = fontStacks[input.font.value] or fontStacks.system
+    textCtx.font = 'bold ' + textSize + 'px ' + fontName
     
     width = (textCtx.measureText input.text.value).width
     step = Math.sqrt (Math.pow canvas.width, 2) + (Math.pow canvas.height, 2)
