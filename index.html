@@ -29,79 +29,57 @@
             background: var(--bg);
             color: var(--text);
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            font-weight: 400;
             min-height: 100vh;
-            padding: 24px 14px 32px;
+            padding: 18px 12px 28px;
         }
 
         header {
             max-width: 1100px;
-            margin: 0 auto 16px;
+            margin: 0 auto 10px;
             display: flex;
-            align-items: center;
+            align-items: flex-start;
             justify-content: space-between;
-            gap: 16px;
+            gap: 12px;
         }
 
         .title-wrap {
             display: flex;
-            align-items: center;
-            gap: 14px;
-        }
-
-        .badge {
-            background: linear-gradient(120deg, #6366f1, #22c55e);
-            color: #fff;
-            padding: 10px 12px;
-            border-radius: 14px;
-            font-weight: 700;
-            box-shadow: var(--shadow);
-            letter-spacing: 0.2px;
+            flex-direction: column;
+            gap: 4px;
         }
 
         .title {
-            font-size: clamp(26px, 4vw, 34px);
-            margin: 0 0 6px;
+            font-size: clamp(24px, 4vw, 30px);
+            margin: 0;
+            font-weight: 600;
+            letter-spacing: 0.1px;
         }
 
         .subtitle {
             margin: 0;
             color: var(--muted);
             line-height: 1.5;
-        }
-
-        .github-link {
-            color: var(--accent);
-            text-decoration: none;
-            font-weight: 700;
-            border: 1px solid rgba(99,102,241,0.2);
-            padding: 11px 15px;
-            border-radius: 12px;
-            background: #fff;
-            transition: all .2s ease;
-            box-shadow: var(--shadow);
-        }
-
-        .github-link:hover {
-            border-color: rgba(37,99,235,.45);
-            box-shadow: 0 16px 40px rgba(37,99,235,.18);
+            font-size: 14px;
+            font-weight: 400;
         }
 
         .info-line {
             max-width: 1100px;
-            margin: 0 auto 10px;
+            margin: 0 auto 12px;
             display: flex;
-            gap: 10px;
+            gap: 8px;
             align-items: center;
             color: var(--muted);
-            font-size: 14px;
+            font-size: 13px;
         }
 
         .info-dot {
-            width: 10px;
-            height: 10px;
+            width: 8px;
+            height: 8px;
             border-radius: 50%;
             background: linear-gradient(120deg, #22c55e, #a3e635);
-            box-shadow: 0 0 0 6px rgba(34,197,94,.12);
+            box-shadow: 0 0 0 5px rgba(34,197,94,.12);
         }
 
         main {
@@ -111,17 +89,17 @@
 
         .layout {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
-            gap: 18px;
+            grid-template-columns: repeat(auto-fit, minmax(330px, 1fr));
+            gap: 14px;
         }
 
         .card {
             background: var(--card);
             border: 1px solid var(--border);
             border-radius: var(--radius);
-            padding: 18px 20px 20px;
+            padding: 16px 18px 18px;
             box-shadow: var(--shadow);
-            backdrop-filter: blur(12px);
+            backdrop-filter: blur(10px);
         }
 
         .card h2 {
@@ -143,10 +121,10 @@
         }
 
         .helper {
-            margin: 0 0 14px;
+            margin: 0 0 12px;
             color: var(--muted);
-            font-size: 14px;
-            line-height: 1.6;
+            font-size: 13px;
+            line-height: 1.55;
         }
 
         .file-drop {
@@ -187,7 +165,7 @@
         .controls {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-            gap: 12px;
+            gap: 10px;
         }
 
         .control {
@@ -362,7 +340,13 @@
             box-shadow: 0 12px 28px rgba(37,99,235,.35);
         }
 
-        #graph { margin: 14px 0 4px; }
+        #graph {
+            margin: 12px 0 4px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 12px;
+            align-items: start;
+        }
 
         canvas {
             box-sizing: border-box;
@@ -387,31 +371,25 @@
 </head>
 <body>
     <header>
-        <div>
-            <div class="title-wrap">
-                <div class="badge">Watermark v2</div>
-                <div>
-                    <h1 class="title">图片水印打码工具</h1>
-                    <p class="subtitle">本地完成渲染，安全为证件照片等敏感图片添加防泄漏水印。点击图片即可下载。</p>
-                </div>
-            </div>
+        <div class="title-wrap">
+            <h1 class="title">图片水印打码工具</h1>
+            <p class="subtitle">浏览器本地生成水印，点击预览即可导出 PNG；支持多张图片同款式批量下载。</p>
         </div>
-        <a class="github-link" href="https://github.com/joyqi/sfz" target="_blank" rel="noreferrer">Github 地址</a>
     </header>
 
     <div class="info-line">
         <span class="info-dot"></span>
-        <span>所有处理均在浏览器内完成，无需上传；点击预览即可导出带水印的 PNG 图片。</span>
+        <span>所有处理均在浏览器内完成，无需上传文件，安心用于证件照片等敏感图片。</span>
     </div>
 
     <main class="layout">
         <section class="card">
-            <h2><span class="step-tag">STEP 1</span>选择一张本地图片</h2>
-            <p class="helper">选择后立即在右侧预览，无需上传到服务器。支持 PNG / JPG / GIF。</p>
+            <h2><span class="step-tag">STEP 1</span>选择图片（支持多选）</h2>
+            <p class="helper">选择后立即预览，无需上传到服务器。支持 PNG / JPG / GIF，点击预览即可下载成品。</p>
             <div class="file-drop">
                 <label for="image">选择图片</label>
-                <span class="file-text">点击按钮从本地选择，或直接在预览区下载已生成的图片。</span>
-                <input type="file" id="image" autocomplete="off" accept="image/png,image/jpeg,image/gif">
+                <span class="file-text">支持一次选择多张图片，全部套用同一套水印样式。</span>
+                <input type="file" id="image" autocomplete="off" accept="image/png,image/jpeg,image/gif" multiple>
             </div>
 
             <h2 style="margin-top:18px;"><span class="step-tag">STEP 2</span>设置水印样式</h2>
