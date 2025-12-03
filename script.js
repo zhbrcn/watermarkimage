@@ -103,8 +103,11 @@
   };
 
   makeStyle = function() {
-    var match;
-    match = input.color.value.match(/^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i);
+    var match, ref;
+    match = (ref = input.color.value) != null ? ref.match(/^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i) : void 0;
+    if (match == null) {
+      return 'rgba(29,155,240,' + input.alpha.value + ')';
+    }
     return 'rgba(' + (parseInt(match[1], 16)) + ',' + (parseInt(match[2], 16)) + ',' + (parseInt(match[3], 16)) + ',' + input.alpha.value + ')';
   };
 
@@ -141,7 +144,7 @@
   };
 
   drawText = function() {
-    var fontName, i, j, k, l, margin, ref, ref1, ref2, ref3, step, textSize, width, x, y;
+    var fontName, i, j, k, l, margin, ref, ref1, ref2, ref3, step, text, textSize, width, x, y;
     if (canvas == null) {
       return;
     }
@@ -157,14 +160,15 @@
     textCtx.fillStyle = makeStyle();
     fontName = fontStacks[input.font.value] || fontStacks.system;
     textCtx.font = 'bold ' + textSize + 'px ' + fontName;
-    width = (textCtx.measureText(input.text.value)).width;
+    text = input.text.value || '内部水印';
+    width = (textCtx.measureText(text)).width;
     step = Math.sqrt((Math.pow(canvas.width, 2)) + (Math.pow(canvas.height, 2)));
     margin = (textCtx.measureText('啊')).width;
     x = Math.ceil(step / (width + margin));
     y = Math.ceil((step / (input.space.value * textSize)) / 2);
     for (i = k = ref = -x, ref1 = x; (ref <= ref1 ? k <= ref1 : k >= ref1); i = ref <= ref1 ? ++k : --k) {
       for (j = l = ref2 = -y, ref3 = y; (ref2 <= ref3 ? l <= ref3 : l >= ref3); j = ref2 <= ref3 ? ++l : --l) {
-        textCtx.fillText(input.text.value, (width + margin) * i, input.space.value * textSize * j);
+        textCtx.fillText(text, (width + margin) * i, input.space.value * textSize * j);
       }
     }
     textCtx.restore();
