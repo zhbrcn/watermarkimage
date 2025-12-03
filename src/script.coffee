@@ -12,8 +12,14 @@ imageInput = $ '#image'
 graph = $ '#graph'
 refresh = $ '#refresh'
 autoRefresh = $ '#auto-refresh'
+clearAll = $ '#clear-all'
+downloadZip = $ '#download-zip'
 files = []
 canvases = []
+
+makeId = -> Math.random().toString(36).slice(2, 10)
+
+baseName = (name) -> (name?.replace(/(\.[^.]+)?$/, '') or 'watermark')
 
 dataURItoBlob = (dataURI) ->
     binStr = atob (dataURI.split ',')[1]
@@ -25,46 +31,77 @@ dataURItoBlob = (dataURI) ->
     new Blob [arr], type: 'image/png'
 
 
-readFiles = ->
-    return if not files?.length
+updateActions = ->
+    hasFiles = files?.length > 0
+    hasCanvas = canvases?.length > 0
+    clearAll?.toggleAttribute 'disabled', not hasFiles
+    downloadZip?.toggleAttribute 'disabled', (not hasCanvas) or (not window.JSZip?)
 
+
+downloadCanvas = (canvas, name) ->
+    link = document.createElement 'a'
+    link.download = baseName(name) + '-marked.png'
+    imageData = canvas.toDataURL 'image/png'
+    blob = dataURItoBlob imageData
+    link.href = URL.createObjectURL blob
+    graph.appendChild link
+
+    setTimeout ->
+        link.click()
+        graph.removeChild link
+    , 60
+
+
+removeEntry = (id) ->
+    files = files.filter (item) -> item.id isnt id
+    readFiles()
+
+
+readFiles = ->
     graph.innerHTML = ''
     canvases = []
+    return updateActions() if not files?.length
 
-    Array.from(files).forEach (file) ->
+    files.forEach (entry) ->
+        { file, id, name } = entry
+        card = document.createElement 'div'
+        card.className = 'preview-card'
+
+        delBtn = document.createElement 'button'
+        delBtn.className = 'delete-btn'
+        delBtn.textContent = '删除'
+        delBtn.addEventListener 'click', (e) ->
+            e.stopPropagation()
+            removeEntry id
+
+        canvas = document.createElement 'canvas'
+
+        card.appendChild delBtn
+        card.appendChild canvas
+        graph.appendChild card
+
         fileReader = new FileReader
 
         fileReader.onload = ->
             img = new Image
             img.onload = ->
-                canvas = document.createElement 'canvas'
                 canvas.width = img.width
                 canvas.height = img.height
 
                 ctx = canvas.getContext '2d'
                 ctx.drawImage img, 0, 0
 
-                canvases.push { canvas, ctx, img, name: file.name }
+                canvases.push { canvas, ctx, img, name, id }
 
-                canvas.addEventListener 'click', ->
-                    link = document.createElement 'a'
-                    link.download = (file.name?.replace(/(\.[^.]+)?$/, '') or 'watermark') + '-marked.png'
-                    imageData = canvas.toDataURL 'image/png'
-                    blob = dataURItoBlob imageData
-                    link.href = URL.createObjectURL blob
-                    graph.appendChild link
-
-                    setTimeout ->
-                        link.click()
-                        graph.removeChild link
-                    , 100
-
-                graph.appendChild canvas
+                canvas.addEventListener 'click', -> downloadCanvas canvas, name
                 drawText()
+                updateActions()
 
             img.src = fileReader.result
 
         fileReader.readAsDataURL file
+
+    updateActions()
     
 
 makeStyle = ->
@@ -133,16 +170,61 @@ drawText = ->
     return
 
 
+clearAll?.addEventListener 'click', ->
+    files = []
+    canvases = []
+    graph.innerHTML = ''
+    imageInput.value = ''
+    updateActions()
+
+
+downloadZip?.addEventListener 'click', ->
+    return unless window.JSZip? and canvases.length
+
+    zip = new JSZip()
+
+    tasks = canvases.map ({ canvas, name }) ->
+        new Promise (resolve, reject) ->
+            canvas.toBlob (blob) ->
+                return reject new Error('生成失败') unless blob?
+                zip.file baseName(name) + '-marked.png', blob
+                resolve()
+
+    Promise.all(tasks)
+        .then -> zip.generateAsync type: 'blob'
+        .then (content) ->
+            link = document.createElement 'a'
+            link.href = URL.createObjectURL content
+            link.download = 'watermarks.zip'
+            document.body.appendChild link
+            setTimeout ->
+                link.click()
+                document.body.removeChild link
+            , 60
+        .catch (err) -> console.error err
+
+
 imageInput.addEventListener 'change', ->
     selected = Array.from @files or []
     validTypes = ['image/png', 'image/jpeg', 'image/gif']
     invalid = selected.filter (item) -> item.type not in validTypes
-    files = selected.filter (item) -> item.type in validTypes
+    additions = selected.filter (item) -> item.type in validTypes
+    files = files.concat additions.map (file) ->
+        file: file
+        id: makeId()
+        name: file.name
 
     alert '已忽略非 png/jpg/gif 的文件' if invalid.length
     return alert '请选择 png / jpg / gif 图片' unless files.length
+    imageInput.value = ''
     readFiles()
 
+
+autoRefresh.addEventListener 'change', ->
+    if @checked
+        refresh.setAttribute 'disabled', 'disabled'
+    else
+        refresh.removeAttribute 'disabled'
 
 autoRefresh.addEventListener 'change', ->
     if @checked
