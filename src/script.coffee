@@ -81,7 +81,9 @@ readFile = ->
     
 
 makeStyle = ->
-    match = input.color.value.match /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i
+    match = input.color.value?.match /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i
+
+    return 'rgba(29,155,240,' + input.alpha.value + ')' unless match?
 
     'rgba(' + (parseInt match[1], 16) + ',' + (parseInt match[2], 16) + ',' \
          + (parseInt match[3], 16) + ',' + input.alpha.value + ')'
@@ -128,7 +130,8 @@ drawText = ->
     fontName = fontStacks[input.font.value] or fontStacks.system
     textCtx.font = 'bold ' + textSize + 'px ' + fontName
     
-    width = (textCtx.measureText input.text.value).width
+    text = input.text.value or '内部水印'
+    width = (textCtx.measureText text).width
     step = Math.sqrt (Math.pow canvas.width, 2) + (Math.pow canvas.height, 2)
     margin = (textCtx.measureText '啊').width
 
@@ -137,7 +140,7 @@ drawText = ->
 
     for i in [-x..x]
         for j in [-y..y]
-            textCtx.fillText input.text.value, (width + margin) * i, input.space.value * textSize * j
+            textCtx.fillText text, (width + margin) * i, input.space.value * textSize * j
     
     textCtx.restore()
     return
