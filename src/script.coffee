@@ -226,6 +226,18 @@ autoRefresh.addEventListener 'change', ->
     else
         refresh.removeAttribute 'disabled'
 
+autoRefresh.addEventListener 'change', ->
+    if @checked
+        refresh.setAttribute 'disabled', 'disabled'
+    else
+        refresh.removeAttribute 'disabled'
+
+autoRefresh.addEventListener 'change', ->
+    if @checked
+        refresh.setAttribute 'disabled', 'disabled'
+    else
+        refresh.removeAttribute 'disabled'
+
 inputItems.forEach (item) ->
     el = $ '#' + item
     input[item] = el
