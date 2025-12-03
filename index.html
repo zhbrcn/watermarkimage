@@ -6,7 +6,7 @@
     <title>图片水印打码工具</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Noto+Sans+SC:wght@400;600&display=swap" rel="stylesheet">
     <style>
         :root {
             --bg: radial-gradient(circle at 20% 20%, rgba(59,130,246,.18), transparent 25%),
@@ -222,6 +222,24 @@
             box-shadow: 0 0 0 3px rgba(37,99,235,.16);
         }
 
+        .control select {
+            width: 100%;
+            padding: 12px 14px;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            background: #fff;
+            color: var(--text);
+            font-size: 15px;
+            font-weight: 600;
+            transition: border-color .2s ease, box-shadow .2s ease;
+        }
+
+        .control select:focus {
+            border-color: rgba(37,99,235,.65);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(37,99,235,.16);
+        }
+
         .slider-row {
             display: grid;
             grid-template-columns: 140px 1fr;
@@ -229,7 +247,49 @@
             gap: 10px;
         }
 
-        input[type=range] { accent-color: var(--accent); }
+        input[type=range] {
+            accent-color: var(--accent);
+            width: 100%;
+            margin: 0;
+            background: transparent;
+        }
+
+        input[type=range]::-webkit-slider-runnable-track {
+            height: 6px;
+            border-radius: 999px;
+            background: linear-gradient(90deg, rgba(37,99,235,.25), rgba(37,99,235,.12));
+            border: 1px solid rgba(148,163,184,.4);
+        }
+
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            margin-top: -5px;
+            height: 16px;
+            width: 16px;
+            border-radius: 50%;
+            background: #2563eb;
+            box-shadow: 0 6px 14px rgba(37,99,235,.35);
+            border: 2px solid #fff;
+        }
+
+        input[type=range]:focus::-webkit-slider-thumb { outline: none; }
+
+        input[type=range]::-moz-range-track {
+            height: 6px;
+            border-radius: 999px;
+            background: linear-gradient(90deg, rgba(37,99,235,.25), rgba(37,99,235,.12));
+            border: 1px solid rgba(148,163,184,.4);
+        }
+
+        input[type=range]::-moz-range-thumb {
+            height: 16px;
+            width: 16px;
+            border-radius: 50%;
+            background: #2563eb;
+            box-shadow: 0 6px 14px rgba(37,99,235,.35);
+            border: 2px solid #fff;
+        }
 
         input[type=color] {
             width: 100%;
@@ -327,6 +387,15 @@
                 <div class="control">
                     <label for="text">水印内容</label>
                     <input type="text" id="text" placeholder="例如：仅供内部使用" autocomplete="off" maxlength="30">
+                </div>
+                <div class="control">
+                    <label for="font">字体</label>
+                    <select id="font" autocomplete="off">
+                        <option value="system">系统默认（更兼容）</option>
+                        <option value="inter" selected>Inter（现代风格）</option>
+                        <option value="noto">思源黑体 Noto Sans SC</option>
+                        <option value="mono">等宽字体（编码感）</option>
+                    </select>
                 </div>
                 <div class="control">
                     <label for="color">颜色</label>
