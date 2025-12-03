@@ -2,6 +2,11 @@ $ = (sel) -> document.querySelector sel
 
 inputItems = ['text', 'font', 'color', 'alpha', 'angle', 'space', 'size']
 input = {}
+valueDisplays =
+    alpha: document.querySelector '#alpha-value'
+    angle: document.querySelector '#angle-value'
+    space: document.querySelector '#space-value'
+    size: document.querySelector '#size-value'
 
 image = $ '#image'
 graph = $ '#graph'
@@ -89,6 +94,23 @@ fontStacks =
     mono: '"SFMono-Regular",Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace'
 
 
+formatValue = (key, val) ->
+    switch key
+        when 'alpha' then Math.round(val * 100) + '%'
+        when 'angle' then Math.round(val) + '°'
+        when 'space' then val.toFixed(1) + 'x'
+        when 'size' then val.toFixed(2) + 'x'
+        else val
+
+
+updateValue = (key) ->
+    display = valueDisplays[key]
+    return unless display?
+
+    val = parseFloat input[key].value
+    display.textContent = formatValue key, val
+
+
 drawText = ->
     return if not canvas?
     textSize = input.size.value * Math.max 15, (Math.min canvas.width, canvas.height) / 25
@@ -128,18 +150,21 @@ image.addEventListener 'change', ->
     readFile()
 
 
+autoRefresh.addEventListener 'change', ->
+    if @checked
+        refresh.setAttribute 'disabled', 'disabled'
+    else
+        refresh.removeAttribute 'disabled'
+
 inputItems.forEach (item) ->
     el = $ '#' + item
     input[item] = el
 
-    autoRefresh.addEventListener 'change', ->
-        if @checked
-            refresh.setAttribute 'disabled', 'disabled'
-        else
-            refresh.removeAttribute 'disabled'
-    
     el.addEventListener 'input', ->
+        updateValue item
         drawText() if autoRefresh.checked
 
-    refresh.addEventListener 'click', drawText
+refresh.addEventListener 'click', drawText
+
+inputItems.forEach (item) -> updateValue item
 
